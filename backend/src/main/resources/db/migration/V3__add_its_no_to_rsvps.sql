@@ -1,0 +1,6 @@
+ALTER TABLE rsvps
+ADD COLUMN its_no VARCHAR(8) NOT NULL DEFAULT '00000000';
+
+ALTER TABLE rsvps
+ADD CONSTRAINT uk_event_its
+UNIQUE (event_id, its_no);

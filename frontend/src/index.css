@@ -1,0 +1,65 @@
+:root {
+  --tone-bg: #f5efe6;
+  --tone-surface: #fffaf4;
+  --tone-heading: #2f2319;
+  --tone-text: #534638;
+  --tone-muted: #6b5a48;
+  --tone-soft: #8f7b67;
+  --tone-accent: #8a6a44;
+  --tone-line: rgba(121, 94, 61, 0.18);
+  --font-body: "Georgia", "Times New Roman", serif;
+  --font-heading: "Cormorant Garamond", "Georgia", serif;
+  color: var(--tone-text);
+  background: var(--tone-bg);
+  font: 18px/1.6 var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top, rgba(214, 186, 146, 0.25), transparent 35%),
+    linear-gradient(180deg, #f7f1ea 0%, #f2eadf 100%);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--tone-heading);
+}
+
+h1 {
+  font-size: clamp(3rem, 7vw, 5.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.05;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
