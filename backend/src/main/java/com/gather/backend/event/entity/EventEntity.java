@@ -32,5 +32,7 @@ public class EventEntity {
 
     private String shareToken;
 
+    private String organizerItsNo;
+
     private LocalDateTime createdAt;
 }

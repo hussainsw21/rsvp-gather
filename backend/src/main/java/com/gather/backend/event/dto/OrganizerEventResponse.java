@@ -1,14 +1,15 @@
 package com.gather.backend.event.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public record CreateEventRequest(
-        String organizerItsNo,
+public record OrganizerEventResponse(
+        UUID eventId,
         String title,
-        String description,
         String location,
         LocalDateTime eventTime,
         LocalDateTime rsvpOpenAt,
-        LocalDateTime rsvpDeadline
+        LocalDateTime rsvpDeadline,
+        String shareToken
 ) {
 }

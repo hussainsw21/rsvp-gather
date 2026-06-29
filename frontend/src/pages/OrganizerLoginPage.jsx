@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api";
 import { setOrganizerSession } from "../utils/organizerSession";
-
-const DEFAULT_ITS_NO = "60421488";
-const DEFAULT_PASSWORD = "hus5152";
 
 function OrganizerLoginPage() {
   const navigate = useNavigate();
@@ -11,10 +9,10 @@ function OrganizerLoginPage() {
     itsNo: "",
     password: "",
   });
-
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!form.itsNo || !form.password) {
@@ -22,20 +20,23 @@ function OrganizerLoginPage() {
       return;
     }
 
-    if (
-      form.itsNo !== DEFAULT_ITS_NO ||
-      form.password !== DEFAULT_PASSWORD
-    ) {
-      setError("Invalid ITS number or password.");
-      return;
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await api.post("/api/auth/login", form);
+
+      setOrganizerSession({
+        itsNo: response.data.itsNo,
+        loggedInAt: new Date().toISOString(),
+      });
+
+      navigate("/organizer/events");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Unable to login.");
+    } finally {
+      setLoading(false);
     }
-
-    setOrganizerSession({
-      itsNo: form.itsNo,
-      loggedInAt: new Date().toISOString(),
-    });
-
-    navigate("/organizer/events");
   };
 
   return (
@@ -45,11 +46,8 @@ function OrganizerLoginPage() {
           <p className="eyebrow">Organizer Access</p>
           <h1>Manage your events</h1>
           <p className="lead">
-            This login is currently client-side only because the backend does
-            not expose organiser authentication yet.
-          </p>
-          <p className="dashboard-caption">
-            Default ITS: {DEFAULT_ITS_NO}
+            Organizer access is now validated by the backend and event ownership
+            is stored server-side.
           </p>
         </div>
 
@@ -88,8 +86,8 @@ function OrganizerLoginPage() {
           </div>
 
           <div className="form-actions">
-            <button className="primary-button" type="submit">
-              Login
+            <button className="primary-button" type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>

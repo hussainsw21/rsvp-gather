@@ -1,17 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import api from "../api/api";
-import {
-  getOrganizerSession,
-  saveOrganizerEvent,
-} from "../utils/organizerSession";
-
-function formatDateTimeLabel(value) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
+import { getOrganizerSession } from "../utils/organizerSession";
 
 function CreateEventPage() {
   const navigate = useNavigate();
@@ -38,20 +28,9 @@ function CreateEventPage() {
       setLoading(true);
       setError("");
 
-      const response = await api.post("/api/events", form);
-      const { eventId, shareToken } = response.data;
-
-      saveOrganizerEvent(session.itsNo, {
-        eventId,
-        shareToken,
-        title: form.title,
-        location: form.location,
-        eventTime: form.eventTime,
-        eventTimeLabel: formatDateTimeLabel(form.eventTime),
-        rsvpOpenAt: form.rsvpOpenAt,
-        rsvpOpenAtLabel: formatDateTimeLabel(form.rsvpOpenAt),
-        rsvpDeadline: form.rsvpDeadline,
-        rsvpDeadlineLabel: formatDateTimeLabel(form.rsvpDeadline),
+      await api.post("/api/events", {
+        organizerItsNo: session.itsNo,
+        ...form,
       });
 
       navigate("/organizer/events");

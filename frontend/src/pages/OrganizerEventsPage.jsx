@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  clearOrganizerSession,
-  getOrganizerEvents,
-  getOrganizerSession,
-} from "../utils/organizerSession";
+import api from "../api/api";
+import { clearOrganizerSession, getOrganizerSession } from "../utils/organizerSession";
 
 function isRsvpOpen(rsvpOpenAt) {
   if (!rsvpOpenAt) {
@@ -14,11 +11,23 @@ function isRsvpOpen(rsvpOpenAt) {
   return new Date(rsvpOpenAt).getTime() <= Date.now();
 }
 
+function formatDateTimeLabel(value) {
+  if (!value) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 function OrganizerEventsPage() {
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [events, setEvents] = useState([]);
   const [copiedEventId, setCopiedEventId] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const organizerSession = getOrganizerSession();
@@ -29,7 +38,16 @@ function OrganizerEventsPage() {
     }
 
     setSession(organizerSession);
-    setEvents(getOrganizerEvents(organizerSession.itsNo));
+
+    api
+      .get(`/api/events/organizer/${organizerSession.itsNo}`)
+      .then((response) => {
+        setEvents(response.data);
+        setError("");
+      })
+      .catch((err) => {
+        setError(err?.response?.data?.message || "Unable to load events.");
+      });
   }, [navigate]);
 
   const handleCopy = async (shareToken, eventId) => {
@@ -91,11 +109,15 @@ function OrganizerEventsPage() {
             </div>
           </div>
 
-          {events.length === 0 ? (
+          {error && <div className="form-error">{error}</div>}
+
+          {!error && events.length === 0 ? (
             <div className="empty-state">
-              <p>No events are stored for this organiser in this browser yet.</p>
+              <p>No events have been created by this organiser yet.</p>
             </div>
-          ) : (
+          ) : null}
+
+          {!error && events.length > 0 ? (
             <div className="table-scroll">
               <table className="rsvp-table">
                 <thead>
@@ -126,8 +148,8 @@ function OrganizerEventsPage() {
                         </span>
                       </td>
                       <td>{event.location || "—"}</td>
-                      <td>{event.eventTimeLabel}</td>
-                      <td>{event.rsvpOpenAtLabel || "—"}</td>
+                      <td>{formatDateTimeLabel(event.eventTime)}</td>
+                      <td>{formatDateTimeLabel(event.rsvpOpenAt)}</td>
                       <td className="link-cell">{`/events/${event.shareToken}`}</td>
                       <td>
                         <div className="row-actions">
@@ -150,8 +172,8 @@ function OrganizerEventsPage() {
                             {!isRsvpOpen(event.rsvpOpenAt)
                               ? "Opens Later"
                               : copiedEventId === event.eventId
-                              ? "Copied"
-                              : "Copy Link"}
+                                ? "Copied"
+                                : "Copy Link"}
                           </button>
                         </div>
                       </td>
@@ -160,7 +182,7 @@ function OrganizerEventsPage() {
                 </tbody>
               </table>
             </div>
-          )}
+          ) : null}
         </section>
       </section>
     </main>
